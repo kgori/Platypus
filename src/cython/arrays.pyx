@@ -1,3 +1,4 @@
+# cython: language_level=2
 """
 Module containing simple array classes, for storing grow-able arrays
 of ints and doubles. These can be used from Python or Cython code.
@@ -67,7 +68,7 @@ cdef class IntArray:
             temp = <int*>(realloc(self.array, 2*sizeof(int)*self.__capacity))
 
             if temp == NULL:
-                raise StandardError, "Could not re-allocate IntArray"
+                raise Exception("Could not re-allocate IntArray")
             else:
                 self.array = temp
                 self.__capacity *= 2
@@ -88,7 +89,7 @@ cdef class IntArray:
         if idx < self.__size:
             return self.array[idx]
         else:
-            raise StandardError, "DoubleArray: Out of bounds. %s > %s" %(idx, self.__size)
+            raise Exception("DoubleArray: Out of bounds. %s > %s" %(idx, self.__size))
 
     def __setitem__(self, int idx, int value):
         """
@@ -97,14 +98,7 @@ cdef class IntArray:
         if idx < self.__size:
             self.array[idx] = value
         else:
-            raise StandardError, "DoubleArray: Out of bounds. %s > %s" %(idx, self.__size)
-
-    def __getslice__(self, int i, int j):
-        """
-        This allows the user to use python's slice syntax on instances of
-        the IntArray class.
-        """
-        return [self.__getitem__(k) for k in range(i,j)]
+            raise Exception("DoubleArray: Out of bounds. %s > %s" %(idx, self.__size))
 
 ###################################################################################################
 
@@ -154,7 +148,7 @@ cdef class DoubleArray:
             temp = <double*>(realloc(self.array, 2*sizeof(double)*self.__capacity))
 
             if temp == NULL:
-                raise StandardError, "Could not re-allocate DoubleArray"
+                raise Exception("Could not re-allocate DoubleArray")
             else:
                 self.array = temp
                 self.__capacity *= 2
@@ -181,7 +175,7 @@ cdef class DoubleArray:
         if idx < self.__size:
             return self.array[idx]
         else:
-            raise StandardError, "DoubleArray: Out of bounds. %s > %s" %(idx, self.__size)
+            raise Exception("DoubleArray: Out of bounds. %s > %s" %(idx, self.__size))
 
     def __setitem__(self, int idx, double value):
         """
@@ -190,13 +184,6 @@ cdef class DoubleArray:
         if idx < self.__size:
             self.array[idx] = value
         else:
-            raise StandardError, "DoubleArray: Out of bounds. %s > %s" %(idx, self.__size)
-
-    def __getslice__(self, int i, int j):
-        """
-        This allows the user to use python's slice syntax on instances of
-        the DoubleArray class.
-        """
-        return [self.__getitem__(k) for k in range(i,j)]
+            raise Exception("DoubleArray: Out of bounds. %s > %s" %(idx, self.__size))
 
 ###################################################################################################

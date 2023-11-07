@@ -1,3 +1,4 @@
+# cython: language_level=2
 """
 Utility code for Platypus. This is mostly concerned with processing needed to produce
 VCF output from the various data structures used by Platypus.

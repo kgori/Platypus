@@ -1,3 +1,4 @@
+# cython: language_level=2
 """
 Cython module containing glue code for the alignment routines used in
 Platypus.
@@ -23,8 +24,9 @@ from htslibWrapper cimport cAlignedRead
 
 # set the size of the hash.  Ensure that hash_size == math.pow(4,hash_nucs)
 cdef int hash_nucs = 7
-cdef int hash_size = 4**hash_nucs
+cdef int hash_size = 16384
 cdef int max_sequence_length = hash_size
+# cython: language_level=2
 cdef int mask = (1 << 2*hash_nucs) - 1
 
 ctypedef long long size_t
@@ -91,7 +93,7 @@ cdef inline unsigned int my_hash_update(char character, int oldVal) nogil:
 
 ###################################################################################################
 
-cdef void hash_sequence_multihit(char* sequence, int sequenceLength, short** hash_table, short** next_array) nogil:
+cdef void hash_sequence_multihit(char* sequence, int sequenceLength, short** hash_table, short** next_array) noexcept nogil:
     """
     Builds a hash table of the byte sequence, allowing multiple hits
     """
@@ -152,7 +154,7 @@ cdef short* hash_sequence(char* sequence, int sequenceLength) nogil:
 
 ###################################################################################################
 
-cdef void hashReadForMapping(cAlignedRead* read) nogil:
+cdef void hashReadForMapping(cAlignedRead* read) noexcept nogil:
     """
     Hash the read, and store the hash for use in the mapReadToHaplotype
     function.

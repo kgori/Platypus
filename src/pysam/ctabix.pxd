@@ -1,3 +1,4 @@
+# cython: language_level=2
 
 cdef extern from "string.h":
   ctypedef int size_t

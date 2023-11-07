@@ -1,3 +1,4 @@
+# cython: language_level=2
 """
 This module contains the top-level variant-calling
 code, including a VariantCaller class.

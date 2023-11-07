@@ -1,3 +1,4 @@
+# cython: language_level=2
 
 cdef bytes annotate_sequence(sequence, dict indel_q_data, int output_base)
 cdef bytes annotate_sequence_read(sequence, dict indel_q_data, int output_base, int reverse)

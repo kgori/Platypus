@@ -1,3 +1,4 @@
+# cython: language_level=2
 """
 FastaFile is a utility class used for reading the Fasta file format,
 and facilitating access to reference sequences.
@@ -142,7 +143,7 @@ cdef class FastaFile:
         """
         """
         if seqName not in self.refs:
-            raise StandardError, "Invalid contig name %s. Make sure your FASTA reference file and query regions have the same naming convention" %(seqName)
+            raise Exception("Invalid contig name %s. Make sure your FASTA reference file and query regions have the same naming convention" %(seqName))
 
         cdef sequenceTuple seqTuple = self.refs[seqName]
         cdef long long int seqLength = seqTuple.SeqLength

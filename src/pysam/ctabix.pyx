@@ -1,3 +1,4 @@
+# cython: language_level=2
 # cython: embedsignature=True
 # adds doc-strings for sphinx
 

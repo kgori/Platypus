@@ -1,3 +1,4 @@
+# cython: language_level=2
 """
 Various classes and functions for use in generating and processing
 variant candidates.

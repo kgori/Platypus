@@ -1,3 +1,4 @@
+# cython: language_level=2
 cimport cython
 cimport htslibWrapper
 from htslibWrapper cimport cAlignedRead

@@ -1,3 +1,4 @@
+# cython: language_level=2
 """
 Some utility functions and constants that don't belong anywhere
 else.

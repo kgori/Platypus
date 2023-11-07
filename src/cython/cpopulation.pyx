@@ -1,3 +1,4 @@
+# cython: language_level=2
 """
 This module implements the core EM algorithm for inferring population
 haplotype frequencies.

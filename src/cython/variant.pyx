@@ -1,3 +1,4 @@
+# cython: language_level=2
 """
 Utility module, containing classes to handle reading and writing
 files of variants.

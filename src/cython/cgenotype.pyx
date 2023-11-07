@@ -1,3 +1,4 @@
+# cython: language_level=2
 """
 Fast implementation of the Genotype class.
 """

@@ -1,3 +1,4 @@
+# cython: language_level=2
 cdef class FastaIndex:
     cdef object theFile
     cdef dict getRefs(self, int parseNCBI)
