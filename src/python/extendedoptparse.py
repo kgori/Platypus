@@ -10,6 +10,7 @@ http://code.activestate.com/recipes/573441-extended-optparse-to-allow-definition
 import optparse
 import glob
 from copy import copy
+from optparse import OptionValueError
 
 ###################################################################################################
 
@@ -23,7 +24,7 @@ def checkList(option, opt, value):
         value = value.strip(" ")
 
         if " " in value:
-            raise OptionValueError, "Option list cannot have spaces. You must supply a comma-separated list."
+            raise OptionValueError("Option list cannot have spaces. You must supply a comma-separated list.")
 
         if "*" in value:
             return glob.glob(value)

@@ -14,26 +14,26 @@ logger = logging.getLogger("Log")
 ###################################################################################################
 
 # valid types for sam headers
-VALID_HEADER_TYPES = { "HD" : dict,
-                       "SQ" : list,
-                       "RG" : list,
-                       "PG" : list,
-                       "CO" : list }
+VALID_HEADER_TYPES = { "HD".encode() : dict,
+                       "SQ".encode() : list,
+                       "RG".encode() : list,
+                       "PG".encode() : list,
+                       "CO".encode() : list }
 
 # order of records within sam headers
-VALID_HEADERS = ("HD", "SQ", "RG", "PG", "CO" )
+VALID_HEADERS = ("HD".encode(), "SQ".encode(), "RG".encode(), "PG".encode(), "CO".encode() )
 
 # type conversions within sam header records
-VALID_HEADER_FIELDS = { "HD" : { "VN" : str, "SO" : str, "GO" : str },
-                        "SQ" : { "SN" : str, "LN" : int, "AH": str, "AS" : str, "M5" : str, "UR" : str, "SP" : str },
-                        "RG" : { "ID" : str, "SM" : str, "LB" : str, "DS" : str, "PU" : str, "PI" : str, "CN" : str, "DT" : str, "PL" : str, "PG" : str},
-                        "PG" : { "ID" : str, "VN" : str, "CL" : str , "PN" : str, "PP" : str, "DS": str},  }
+VALID_HEADER_FIELDS = { "HD".encode() : { "VN".encode() : str, "SO".encode() : str, "GO".encode() : str },
+                        "SQ".encode() : { "SN".encode() : str, "LN".encode() : int, "AH": str, "AS".encode() : str, "M5".encode() : str, "UR".encode() : str, "SP".encode() : str },
+                        "RG".encode() : { "ID".encode() : str, "SM".encode() : str, "LB".encode() : str, "DS".encode() : str, "PU".encode() : str, "PI".encode() : str, "CN".encode() : str, "DT".encode() : str, "PL".encode() : str, "PG".encode() : str},
+                        "PG".encode() : { "ID".encode() : str, "VN".encode() : str, "CL".encode() : str , "PN".encode() : str, "PP".encode() : str, "DS": str},  }
 
 # output order of fields within records
-VALID_HEADER_ORDER = { "HD" : ( "VN", "SO", "GO" ),
-                       "SQ" : ( "SN", "LN", "AH", "AS", "M5" , "UR" , "SP" ),
-                       "RG" : ( "ID", "SM", "LB", "DS" , "PU" , "PI" , "CN" , "DT", "PL" , "PG"),
-                       "PG" : ( "ID", "VN", "CL" ), }
+VALID_HEADER_ORDER = { "HD".encode() : ( "VN".encode(), "SO".encode(), "GO".encode() ),
+                       "SQ".encode() : ( "SN".encode(), "LN".encode(), "AH".encode(), "AS".encode(), "M5".encode() , "UR".encode() , "SP".encode() ),
+                       "RG".encode() : ( "ID".encode(), "SM".encode(), "LB".encode(), "DS".encode() , "PU".encode() , "PI".encode() , "CN".encode() , "DT".encode(), "PL".encode() , "PG".encode()),
+                       "PG".encode() : ( "ID".encode(), "VN".encode(), "CL".encode() ), }
 
 ######################################################################
 ## Public methods
@@ -78,6 +78,12 @@ cdef class Samfile:
         self.filename = fileName
         self.index     = NULL
         self.lock      = None
+
+    def __reduce__(self):
+        """
+        For pickle.
+        """
+        return (Samfile, (self.filename,))
     
     def __dealloc__(self):
         """
@@ -148,7 +154,7 @@ cdef class Samfile:
         If _open is called on an existing bamfile, the current file will be
         closed and a new file will be opened.
         """
-        if mode not in ("r", "rb", "rbh"):
+        if mode not in ("r".encode(), "rb".encode(), "rbh".encode()):
             raise Exception("invalid file opening mode `%s`" % mode)
         
         if self.samfile != NULL:
@@ -158,7 +164,7 @@ cdef class Samfile:
                     raise IOError("Error while opening index for file `%s`. Check that index exists " % self.filename)
             return
 
-        if mode[0] == "r":
+        if mode.decode()[0] == "r":
             self.openBAMFile(mode)
         else:
             raise Exception("BAM file is read-only")
@@ -188,7 +194,7 @@ cdef class Samfile:
         '''
         # Need to load the index for new queries.
         if not self._isOpen():
-            self._open('r', loadIndex=True)
+            self._open('r'.encode(), loadIndex=True)
         
         if self._isBam() or self._isCram():
             return ReadIterator(self, region)

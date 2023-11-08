@@ -39,7 +39,7 @@ cdef class Tabixfile:
         if self._filename != NULL: free(self._filename )
         self._filename = strdup( filename )
 
-        filename_index = filename + ".tbi"
+        filename_index = filename + ".tbi".encode()
 
         if mode[0] == 'w':
             # open file for writing
@@ -87,14 +87,13 @@ cdef class Tabixfile:
         # translate to a region
         if reference:
             if start != None and end != None:
-                region = "%s:%i-%i" % (reference, start+1, end)
+                region = "{}:{}-{}".format(reference.decode(), start+1, end).encode()
             elif start == None and end != None:
-                region = "%s:%i-%i" % (reference, 1, end)
+                region = "{}:{}-{}".format(reference.decode(), 1, end).encode()
             elif end == None and start != None:
-                region = "%s:%i-%i" % (reference, start+1, max_pos-1)
+                region = "{}:{}-{}".format(reference.decode(), start+1, max_pos-1).encode()
             else:
                 region = reference
-
         if region:
             ti_parse_region( self.tabixfile.idx, region, &rtid, &rstart, &rend)        
             if rtid < 0: raise ValueError( "invalid region `%s`" % region )
@@ -124,7 +123,7 @@ cdef class Tabixfile:
         data (see for example :meth:`asTuple` and :meth:`asGTF`).
         '''
         ti_lazy_index_load( self.tabixfile )
-
+        
         if not self._isOpen():
             raise ValueError( "I/O operation on closed file" )
 

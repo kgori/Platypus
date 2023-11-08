@@ -551,7 +551,7 @@ cdef void callVariantsInRegion(bytes chrom, int start, int end, bamFiles, FastaF
         readBuffers = loadBAMData(bamFiles, chrom, start, end, options, samples, samplesByID, samplesByBAM, refSequence)
     
     except Exception, e:
-        logger.error('Exception in region %s:%s-%s. Error was %s' %(chrom, start, end, e))
+        logger.error('Exception in _region %s:%s-%s. Error was %s' %(chrom, start, end, e))
         logger.warning("Region %s:%s-%s will be skipped" %(chrom, start, end))
         return
 
@@ -639,7 +639,7 @@ cdef void callHLAVariantsInRegion(bytes chrom, int start, int end, bamFiles, Fas
         readBuffers = loadBAMData(bamFiles, chrom, start, end, options, samples, samplesByID, samplesByBAM, refSequence)
 
     except Exception, e:
-        logger.error('Exception in region %s:%s-%s. Error was %s' %(chrom, start, end, e))
+        logger.error('Exception in region_ %s:%s-%s. Error was %s' %(chrom, start, end, e))
         logger.warning("Region %s:%s-%s will be skipped" %(chrom, start, end))
         return
 
@@ -909,7 +909,7 @@ class PlatypusSingleProcess(object):
 
         if options.refFile.endswith(".gz") or options.refFile.endswith(".bz2") or options.refFile.endswith(".bgz"):
             logger.error("Reference file-name (%s) looks like a compressed file-name. Please un-compress the reference FASTA file before running Platypus" %(options.refFile))
-            raise StandardError, "Invalid reference FASTA file supplied"
+            raise Exception("Invalid reference FASTA file supplied")
 
         self.refFile = fastafile.FastaFile(options.refFile, options.refFile + ".fai")
 

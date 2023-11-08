@@ -584,15 +584,15 @@ cdef class VCFProxy( NamedTupleProxy ):
     The genotypes are accessed via index.
     '''
     map_key2field = { 
-        'contig' : (0, str),
+        'contig' : (0, bytes),
         'pos' : (1, int),
-        'id' : (2, str),
-        'ref' : (3, str),
-        'alt' : (4, str),
-        'qual' : (5, str),
-        'filter' : (6,str),
-        'info' : (7,str),
-        'format' : (8,str) }
+        'id' : (2, bytes),
+        'ref' : (3, bytes),
+        'alt' : (4, bytes),
+        'qual' : (5, bytes),
+        'filter' : (6,bytes),
+        'info' : (7,bytes),
+        'format' : (8,bytes) }
 
     def __cinit__(self ): 
         # automatically calls TupleProxy.__cinit__

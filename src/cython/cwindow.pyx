@@ -77,7 +77,7 @@ cdef extern from "string.h":
 ###################################################################################################
 
 @cython.profile(False)
-cdef inline int readPosComp(const void* x, const void* y) nogil:
+cdef inline int readPosComp(const void* x, const void* y) noexcept nogil:
     """
     Comparison function for use in qsort, to sort reads by their start positions and
     then end positions.
@@ -93,7 +93,7 @@ cdef inline int readPosComp(const void* x, const void* y) nogil:
 ###################################################################################################
 
 @cython.profile(False)
-cdef int readMatePosComp(const void* x, const void* y):
+cdef int readMatePosComp(const void* x, const void* y) noexcept:
     """
     Comparison function for use in qsort, to sort reads by their mate positions, as long as
     the mates are on the same chromosome.

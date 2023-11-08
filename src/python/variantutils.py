@@ -41,11 +41,11 @@ class VariantCandidateReader(object):
                 logger.error("Remember to use the 'tabix -p vcf %s.gz' command to index the compressed file" %(fileName))
                 logger.error("This should create an index file: %s.gz.tbi" %(fileName))
                 logger.error("")
-                raise StandardError, "Input VCF source file %s was not compressed and indexed" %(fileName)
+                raise Exception("Input VCF source file %s was not compressed and indexed" %(fileName))
 
             # Compressed VCF. Tabix will complain if there's no index.
             else:
-                self.vcfFiles.append(ctabix.Tabixfile(fileName))
+                self.vcfFiles.append(ctabix.Tabixfile(fileName.encode()))
 
     def __del__(self):
         """
@@ -65,7 +65,7 @@ class VariantCandidateReader(object):
         for vcfFile in self.vcfFiles:
             try:
                 vcfLines = vcfFile.fetch(chromosome, start, end, parser=ctabix.asVCF())
-            except Exception, e:
+            except Exception as e:
                 logger.warning("Could not retrieve variants from source file in region %s:%s-%s. Error was %s" %(chromosome,start,end,e))
                 continue
 
@@ -79,7 +79,7 @@ class VariantCandidateReader(object):
                 pos = line.pos
                 ref = line.ref
                 altCol = line.alt
-                alts = altCol.split(",")
+                alts = altCol.split(",".encode())
 
                 lenRef = len(ref)
 
@@ -170,7 +170,7 @@ def isValidVcfLine(line):
     chromosome = line.contig # TODO any possible checks on chromosome?
     position   = line.pos
     reference  = line.ref
-    variants   = line.alt.split(",")
+    variants   = line.alt.split(",".encode())
 
     try:
         if int(position) < 0:
@@ -181,16 +181,17 @@ def isValidVcfLine(line):
 
     validBases = set(['A', 'C', 'G', 'T', 'N'])
 
-    invalidBasesInReference = set(reference) - validBases
+    invalidBasesInReference = set(reference.decode()) - validBases
+
     if len(invalidBasesInReference) > 0:
-        logger.warning("Invalid reference sequence at chromosome " + chromosome)
+        logger.warning("Invalid reference sequence at chromosome " + chromosome.decode())
 
         return False
 
     for variant in variants:
-        invalidBasesInVariant = set(variant) - validBases
+        invalidBasesInVariant = set(variant.decode()) - validBases
         if len(invalidBasesInVariant) > 0:
-            logger.warning("Invalid alternative at chromosome " + chromosome)
+            logger.warning("Invalid alternative at chromosome " + chromosome.decode())
             logger.warning(line)
             return False
 

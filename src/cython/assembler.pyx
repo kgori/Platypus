@@ -258,7 +258,7 @@ cdef inline char* Node_GetPrefix(Node* theNode):
 ###################################################################################################
 
 @cython.profile(False)
-cdef inline int nodePosComp(const void* x, const void* y):
+cdef inline int nodePosComp(const void* x, const void* y) noexcept:
     """
     Comparison function for Node structs, for use in qsort, to sort Nodes by their
     positions.
@@ -593,7 +593,7 @@ cdef void EdgeStack_Push(EdgeStack* theStack, Edge* element):
         temp = <Edge**>(realloc(theStack.elements, 2*sizeof(Edge*)*theStack.capacity))
 
         if temp == NULL:
-            raise StandardError, "Could not re-allocate EdgeStack"
+            raise Exception("Could not re-allocate EdgeStack")
         else:
             theStack.elements = temp
             theStack.capacity *= 2
@@ -725,7 +725,7 @@ cdef int NodeDict_FindOrInsert(NodeDict* theDict, Node** theNode, int keyLen, No
     cdef Node** temp = <Node**>(realloc(theDict.buckets[hashValue], sizeof(Node*)*newBucketSize))
 
     if temp == NULL:
-        raise StandardError, "Could not re-allocate bucket"
+        raise Exception("Could not re-allocate bucket")
     else:
         # Set new entries to NULL
         for i in range(oldBucketSize, newBucketSize):
@@ -825,7 +825,7 @@ cdef void DeBruijnGraph_AddEdge(DeBruijnGraph* theGraph, Node* startNode, Node* 
         pass # This only happens when there are Ns in the sequence.
         #logger.error("Error in assembler. Could not find matching end-node for edge. Something is very wrong")
         #logger.error("Start node sequence is %s. End node sequence is %s" %(startNode[0].sequence[0:startNode[0].kmerSize], endNode[0].sequence[0:endNode[0].kmerSize]))
-        #raise StandardError, "Assembly Error!!"
+        #raise Exception("Assembly Error!!")
 
 ###################################################################################################
 

@@ -352,7 +352,7 @@ class VCF:
             elif value == "VCFv4.1":
                 self._version = 41
             else:
-                print value
+                print(value)
                 self.error(line,self.UNKNOWN_FORMAT_STRING)
         elif key == "INFO":
             f = self.parse_format(line, value)
@@ -372,7 +372,7 @@ class VCF:
         stream.write("##fileformat=VCFv%s.%s\n" % (self._version // 10, self._version % 10))
         for key,value in self._header: stream.write("##%s=%s\n" % (key,value))
         for var,label in [(self._info,"INFO"),(self._filter,"FILTER"),(self._format,"FORMAT")]:
-            for f in var.itervalues(): stream.write("##%s=%s\n" % (label,self.format_format(f,filter=(label=="FILTER"))))
+            for f in iter(var.values()): stream.write("##%s=%s\n" % (label,self.format_format(f,filter=(label=="FILTER"))))
 
 
     def parse_heading( self, line ):
@@ -1004,35 +1004,35 @@ M\t1230237\t.\tT\t.\t47\tPASS\tNS=3;DP=13;AA=T\tGT:GQ:DP:HQ\t0|0:54:7:56,60\t0|0
 20\t1110696\trs6040355\tA\tG,T\t67\tPASS\tNS=2;DP=10;AF=0.333,0.667;AA=T;DB\tGT:GQ:DP:HQ\t1|2:21:6:23,27\t2|1:2:0:18,2\t2/2:35:4"""
 
     if False:
-        print "Parsing v3.3 file:"
-        print vcf33
+        print("Parsing v3.3 file:")
+        print(vcf33)
         vcf = VCF()
         lines = [data for data in vcf.parse( (line+"\n" for line in vcf33.split('\n') ) )]
-        print "Writing v3.3 file:"
+        print("Writing v3.3 file:")
         vcf.write( sys.stdout, lines )
 
     if False:
-        print "Parsing v4.0 file:"
-        print vcf40
+        print("Parsing v4.0 file:")
+        print(vcf40)
         vcf = VCF()
         lines = [data for data in vcf.parse( (line+"\n" for line in vcf40.split('\n') ) )]
-        print "Writing v4.0 file:"
+        print("Writing v4.0 file:")
         vcf.write( sys.stdout, lines )
 
     if True:
-        print "Parsing v3.3 file:"
-        print vcf33
+        print("Parsing v3.3 file:")
+        print(vcf33)
         vcf = sortedVCF()
         lines = [data for data in vcf.parse( (line+"\n" for line in vcf33.split('\n') ) )]
-        print "Writing v3.3 file:"
+        print("Writing v3.3 file:")
         vcf.write( sys.stdout, lines )
 
     if True:
-        print "Parsing v4.0 file:"
-        print vcf40
+        print("Parsing v4.0 file:")
+        print(vcf40)
         vcf = sortedVCF()
         lines = [data for data in vcf.parse( (line+"\n" for line in vcf40.split('\n') ) )]
-        print "Writing v4.0 file:"
+        print("Writing v4.0 file:")
         vcf.write( sys.stdout, lines )
 
 if __name__ == "__main__":

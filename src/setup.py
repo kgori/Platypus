@@ -23,7 +23,8 @@ setup(name="Platypus", py_modules=['python/Platypus'])
 #
 
 extModules = []
-corMods = ['cython/chaplotype.pxd', 'cython/variant.pxd', 'cython/fastafile.pxd', 'cython/calign.pxd', 'cython/htslibWrapper.pxd']
+corMods = []
+# corMods = ['cython/chaplotype.pxd', 'cython/variant.pxd', 'cython/fastafile.pxd', 'cython/calign.pxd', 'cython/htslibWrapper.pxd']
 incDirs = ["./", "c"]
 libraryDirs = ["./lib"]
 

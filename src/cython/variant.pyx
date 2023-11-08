@@ -157,6 +157,7 @@ cdef class Variant(object):
         cdef bytes sizes
         cdef bytes displacements
         cdef char qbase = 33
+        print(indel_prior_model[1])
         cdef char prior = (<char*>indel_prior_model[1][0])[0] - qbase
         cdef char newprior
         cdef unsigned char size

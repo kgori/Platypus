@@ -19,6 +19,7 @@ import filez
 import logging.handlers
 import platypusutils
 import time
+import functools
 
 from variantcaller import PlatypusSingleProcess
 from variantcaller import PlatypusMultiProcess
@@ -38,7 +39,7 @@ class FileForQueueing(object):
         self.heap = []
 
         line = line
-        cols = line.strip().split("\t")
+        cols = line.strip().split("\t".encode())
         chrom = cols[0]
 
         # Where possible, convert chromosome names into
@@ -132,12 +133,28 @@ def regionSort(x, y):
     pos2 = int(y[1])
 
     try:
-        chrom1 = int(chrom1.replace("chr", ""))
-        chrom2 = int(chrom2.replace("chr", ""))
+        chrom1 = int(chrom1.replace(b"chr", b""))
+        chrom2 = int(chrom2.replace(b"chr", b""))
     except ValueError:
         pass
 
     return cmp(chrom1, chrom2) or cmp(pos1, pos2)
+
+###################################################################################################
+
+def regionKey(x):
+    """
+    Key function for python3+ sorting and comparison functions
+    """
+    chrom = x[0]
+    pos = int(x[1])
+
+    try:
+        chrom = int(chrom.replace(b"chr", b""))
+    except ValueError:
+        pass
+
+    return (chrom, pos)
 
 ###################################################################################################
 
@@ -159,6 +176,22 @@ def chromAndPosSort(x, y):
         pass
 
     return cmp(xChrom, yChrom) or cmp(xStart, yStart)
+
+###################################################################################################
+
+def chromAndPosKey(x):
+    """
+    Key function for python3+ sorting and comparison functions
+    """
+    xChrom = x.split("_")[-1].split(":")[0]
+    xStart = int(x.split(":")[1].split("-")[0])
+
+    try:
+        xChrom = int(xChrom.replace("chr", ""))
+    except ValueError:
+        pass
+
+    return (xChrom, xStart)
 
 ###################################################################################################
 
@@ -251,7 +284,7 @@ def continueCalling(args):
         logger.error("Quitting now.")
 
     logger.info("Previous job failed at %s:%s. Job will be re-run from %s:%s" %(lastChrom,realLastPos,lastChrom,lastPos))
-    allRegions = sorted(platypusutils.getRegions(platypusOptions), cmp=regionSort)
+    allRegions = sorted(platypusutils.getRegions(platypusOptions), key=regionKey)
     theIndex = -1
 
     for index,region in enumerate(allRegions):
@@ -259,7 +292,7 @@ def continueCalling(args):
             theIndex = index + 1
 
     if theIndex == -1:
-        raise StandardError, "Could not find region which was unfinished in input VCF"
+        raise Exception("Could not find region which was unfinished in input VCF")
 
     logger.info("Platypus will continue calling. Output will go to file %s." %(options.vcfFile))
 
@@ -434,7 +467,7 @@ def runVariantCaller(options, continuing=False):
         ch.setLevel(logging.INFO)
         fh.setLevel(logging.DEBUG)
     else:
-        raise StandardError, "Value of 'verbosity' input parameter must be between 0 and 3 inclusive"
+        raise Exception("Value of 'verbosity' input parameter must be between 0 and 3 inclusive")
 
     log.addHandler(ch)
     log.addHandler(fh)
@@ -451,7 +484,7 @@ def runVariantCaller(options, continuing=False):
     if continuing:
         regions = options.unfinishedRegions
     else:
-        regions = sorted(platypusutils.getRegions(options), cmp=regionSort)
+        regions = sorted(platypusutils.getRegions(options), key=regionKey)
 
     # Always create process manager even if nCPU=1, so that we can listen for signals from the main thread
     fileNames = set()
@@ -489,7 +522,7 @@ def runVariantCaller(options, continuing=False):
         try:
             time.sleep(1)
         except KeyboardInterrupt:
-            print "KeyboardInterrupt detected, terminating all processes..."
+            print("KeyboardInterrupt detected, terminating all processes...")
             for process in processes:
                 process.terminate()
             log.error("Variant calling aborted due to keyboard interrupt")

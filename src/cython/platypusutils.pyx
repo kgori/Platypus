@@ -105,25 +105,25 @@ def getSampleNamesAndLoadIterators(bamFileNames, regions, options):
         
         if not isIndexable(fileName):
             logger.error("Input file %s is not a BAM/CRAM file" %(fileName))
-            raise StandardError, "Input file %s is not a BAM/CRAM file" %(fileName)
+            raise Exception("Input file %s is not a BAM/CRAM file" %(fileName))
         
-        bamFile = Samfile(fileName)
-        bamFile._open('r', True)
+        bamFile = Samfile(fileName.encode())
+        bamFile._open('r'.encode(), True)
         
         bamFiles.append(bamFile)
         
         try:
             theHeader = bamFile.header
-            readGroupTags = theHeader['RG']
+            readGroupTags = theHeader['RG'.encode()]
             
             if len(readGroupTags) > 1:
                 logger.debug("Found multiple read group tags in file %s" %(fileName))
             
-            samplesInBAM = set([x['SM'] for x in readGroupTags])
+            samplesInBAM = set([x['SM'.encode()] for x in readGroupTags])
             samplesByBAM[bamFile] = list(samplesInBAM)
             
             for tag in readGroupTags:
-                samplesByID[tag['ID']] = tag['SM']
+                samplesByID[tag['ID'.encode()]] = tag['SM'.encode()]
             
             if len(samplesInBAM) > 1:
                 logger.info("Found multiple samples in BAM file %s" %(fileName))
@@ -131,16 +131,16 @@ def getSampleNamesAndLoadIterators(bamFileNames, regions, options):
                 samples.extend(samplesInBAM)
             
             elif len(samplesInBAM) == 0:
-                raise StandardError, "No sample information in RG tag in file %s" %(fileName)
+                raise Exception("No sample information in RG tag in file %s" %(fileName))
             
             else:
-                sampleName = theHeader['RG'][0]['SM']
+                sampleName = theHeader['RG'.encode()][0]['SM'.encode()]
                 samples.append(sampleName)
                 logger.debug("Adding sample name %s, using BAM RG:SM tag in file %s" %(sampleName, fileName))
             
             del(theHeader)
         
-        except StandardError, e:
+        except Exception as e:
             logger.debug("Error in BAM header sample parsing. Error was \n%s\n" %(e))
             sampleName = fileName.split("/")[-1][0:-4]
             samples.append(sampleName)
@@ -163,7 +163,7 @@ def getBAMFileNamesFromTextFile(fileName):
     Reads a list of BAM file names from a text file
     """
     fileNames = []
-    theTextFile = Open(fileName, 'r')
+    theTextFile = Open(fileName, 'r'.encode())
 
     for line in theTextFile:
         line = line.strip()
@@ -483,16 +483,13 @@ cdef list loadBAMData(list bamFiles, bytes chrom, int start, int end, options, l
             bamsThisSample = sorted([x for x in uniqueBAMs if sample in samplesByBAM[x]])
             assert len(bamsThisSample) == 1, "Something is screwy here"
             reader = bamsThisSample[0]
-            
             # Need to lock here when sharing BAM files
             if reader.lock is not None:
                 reader.lock.acquire()
-            
             theReadBuffer = bamReadBuffer(chrom, start, end, options)
-            theReadBuffer.sample = bytes(sample)
-            
+            theReadBuffer.sample = bytes(sample.encode())
             try:
-                region = "%s:%s-%s" %(chrom, start, end)
+                region = "{}:{}-{}".format(chrom.decode(), start, end).encode()
                 readIterator = reader.fetch(region)
             except Exception, e:
                 logger.warning(e.message)
@@ -549,7 +546,7 @@ cdef list loadBAMData(list bamFiles, bytes chrom, int start, int end, options, l
                 for qChrom,qStart,qEnd in queries:
                     if verbosity >= 3:
                         logger.debug("Querying broken mates %s:%s-%s" %(qChrom, qStart, qEnd))
-                    region = "%s:%s-%s" %(qChrom, qStart, qEnd)
+                    region = "%s:%s-%s".encode() %(qChrom, qStart, qEnd)
                     readIterator = reader.fetch( region )
                     theRead = NULL
                     
@@ -584,7 +581,7 @@ cdef list loadBAMData(list bamFiles, bytes chrom, int start, int end, options, l
                 reader.lock.acquire()
 
             try:
-                region = "%s:%s-%s" %(chrom, start, end)
+                region = "{}:{}-{}".format(chrom.decode(), start, end).encode()
                 readIterator = reader.fetch( region )
             except Exception, e:
                 logger.warning(e.message)
@@ -640,7 +637,7 @@ cdef list loadBAMData(list bamFiles, bytes chrom, int start, int end, options, l
 
                     if verbosity >= 3:
                         logger.debug("Querying broken mates %s:%s-%s" %(chrom, qStart, qEnd))
-                    region = "%s:%s-%s" %(qChrom, qStart, qEnd)
+                    region = "%s:%s-%s".encode() %(qChrom, qStart, qEnd)
                     readIterator = reader.fetch( region )
                     theRead = NULL
 
@@ -768,7 +765,7 @@ cdef int isHaplotypeValid(tuple variants):
         # This should never happen
         if thisVar.minRefPos > nextVar.minRefPos:
             logger.error("Variants %s and %s are out of order. This should never happen." %(thisVar, nextVar))
-            raise StandardError, "Variants out of order in haplotype!"
+            raise Exception("Variants out of order in haplotype!")
 
         # If this occurs then the haplotype is invalid. This will only happen if a deletion deletes the ref pos
         # of the next variant.
@@ -836,7 +833,7 @@ cdef Variant leftNormaliseIndel(Variant variant, FastaFile refFile, int maxReadL
     
     # This will invariably happen at the end of chromosomes, e.g. MT
     if bytesHapSeq[-1] != bytesRefSeq[-1] and windowMax != seqMax:
-        raise StandardError, "Variant %s not correctly normalised. \nRef = %s\nHap = %s" %(variant, bytesRefSeq, bytesHapSeq)
+        raise Exception("Variant %s not correctly normalised. \nRef = %s\nHap = %s" %(variant, bytesRefSeq, bytesHapSeq))
 
     cdef char* refSequence = bytesRefSeq
     cdef char* hapSequence = bytesHapSeq
@@ -863,8 +860,8 @@ cdef Variant leftNormaliseIndel(Variant variant, FastaFile refFile, int maxReadL
     cdef int hapIndex = 0
     cdef int refIndex = 0
 
-    cdef bytes newAdded   = bytes("")
-    cdef bytes newRemoved = bytes("")
+    cdef bytes newAdded   = bytes()
+    cdef bytes newRemoved = bytes()
 
     cdef int effecctSize   = 0
     cdef int insStart      = 0
@@ -918,7 +915,7 @@ cdef Variant leftNormaliseIndel(Variant variant, FastaFile refFile, int maxReadL
                 logger.error("Original variant was %s" %(variant))
                 logger.error(refSequence)
                 logger.error(hapSequence)
-                raise StandardError, "Error in variant conversion to standard format"
+                raise Exception("Error in variant conversion to standard format")
 
             return newVar
 
@@ -940,13 +937,13 @@ def getRegions(options):
     """
     if options.refFile.endswith(".gz") or options.refFile.endswith(".bz2") or options.refFile.endswith(".bgz"):
         logger.error("Reference file-name (%s) looks like a compressed file-name. Please un-compress the reference FASTA file before running Platypus" %(options.refFile))
-        raise StandardError, "Invalid reference FASTA file supplied"
+        raise Exception("Invalid reference FASTA file supplied")
 
     cdef FastaFile refFile = FastaFile(options.refFile, options.refFile + ".fai", parseNCBI = options.parseNCBI)
     
     fileName = None
     if len(options.bamFiles) == 1 and not isIndexable(options.bamFiles[0]):
-        theTextFile = Open(options.bamFiles[0], 'r')
+        theTextFile = Open(options.bamFiles[0], 'r'.encode())
         for line in theTextFile:
             line = line.strip()
             if isIndexable(line):
@@ -957,10 +954,10 @@ def getRegions(options):
     
     if not isIndexable(fileName):
         logger.error("Input file %s is not a BAM/CRAM file" %(fileName))
-        raise StandardError, "Input file %s is not a BAM/CRAM file" %(fileName)
+        raise Exception("Input file %s is not a BAM/CRAM file" %(fileName))
     
-    file = htslibWrapper.Samfile(fileName)
-    file._open('r', loadIndex=True)
+    file = htslibWrapper.Samfile(fileName.encode())
+    file._open('r'.encode(), loadIndex=True)
     finalRegions = []
     regions = []
     
@@ -1001,7 +998,7 @@ def getRegions(options):
 
         try:
             header = file.header
-            regions = [ (d['SN'], 0, d['LN']) for d in header['SQ'] ]
+            regions = [ (d['SN'.encode()], 0, d['LN'.encode()]) for d in header['SQ'.encode()] ]
             logger.debug("Loaded regions from BAM header, SQ tags")
         except Exception:
             logger.debug("Loading regions from FASTA index datas")
@@ -1012,22 +1009,22 @@ def getRegions(options):
     else:
         for region in options.regions:
 
-            split = region.rsplit(":", 1)
+            split = region.rsplit(":".encode(), 1)
             chrom = bytes(split[0])
             
             if len( split ) == 2 :
-                [ start, end ] = split[1].split("-")
+                [ start, end ] = split[1].split("-".encode())
                 regions.append((chrom,int(start)-1,int(end)))
 
                 if regions[-1][2] - regions[-1][1] > 1e9:
                     logger.error("Input region (%s) is too long. Try again" %(region))
-                    raise StandardError, "Invalid input region: %s" (region)
+                    raise Exception("Invalid input region: %s" (region))
 
             elif len(split) == 1:
                 start = 1
                 try:
                     header = file.header
-                    pivot = dict(zip([d['SN'] for d in header['SQ']], [d['LN'] for d in header['SQ']]))
+                    pivot = dict(zip([d['SN'.encode()] for d in header['SQ'.encode()]], [d['LN'.encode()] for d in header['SQ'.encode()]]))
                     end = pivot[chrom]
                     regions.append((chrom,int(start)-1,int(end)))
                 except Exception:
