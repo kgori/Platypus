@@ -40,8 +40,6 @@ extModules.append(Extension(name='cerrormodel', sources=['cython/cerrormodel.pyx
 extModules.append(Extension(name='calign', sources=['cython/calign.pyx', 'c/align.c', 'cython/htslibWrapper.pxd', 'cython/cerrormodel.pxd'], include_dirs=incDirs, extra_compile_args=cFlags))
 extModules.append(Extension(name='chaplotype', sources=['cython/chaplotype.pyx', 'cython/variant.pxd','cython/htslibWrapper.pxd', 'cython/calign.pxd', 'c/align.c'], include_dirs=incDirs, language='c', extra_compile_args=cFlags))
 
-extModules.append(Extension(name="ctabix", sources=["pysam/ctabix.pyx"] + ["pysam/tabix_util.c"] + glob.glob("tabix/*.pysam.c"), include_dirs=["tabix", "pysam"], libraries=["z"], language="c", extra_compile_args=tabixFlags))
-extModules.append(Extension(name="TabProxies", sources=[ "pysam/TabProxies.pyx", ], libraries=[ "z", ], language="c", extra_compile_args=tabproxiesFlags))
 extModules.append(Extension(name='cwindow', sources=corMods+['cython/cwindow.pyx'], include_dirs=incDirs,  extra_compile_args=cFlags, language='c'))
 extModules.append(Extension(name='assembler', sources=corMods+['cython/assembler.pyx','cython/cwindow.pxd'], include_dirs=incDirs, extra_compile_args=cFlags, language='c'))
 extModules.append(Extension(name='cgenotype', sources=corMods+['cython/cgenotype.pyx','cython/cwindow.pxd'], include_dirs=incDirs,  extra_compile_args=cFlags, language='c'))
