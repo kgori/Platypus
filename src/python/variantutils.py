@@ -8,7 +8,7 @@ from __future__ import division
 
 import logging
 import os
-import ctabix
+import pysam
 
 from variant import Variant
 
@@ -45,7 +45,11 @@ class VariantCandidateReader(object):
 
             # Compressed VCF. Tabix will complain if there's no index.
             else:
-                self.vcfFiles.append(ctabix.Tabixfile(fileName))
+                if os.path.exists(fileName + ".csi"):
+                    tbf = pysam.TabixFile(fileName, index = fileName + ".csi")
+                else:
+                    tbf = pysam.TabixFile(fileName)
+                self.vcfFiles.append(tbf)
 
     def __del__(self):
         """
@@ -64,7 +68,7 @@ class VariantCandidateReader(object):
 
         for vcfFile in self.vcfFiles:
             try:
-                vcfLines = vcfFile.fetch(chromosome, start, end, parser=ctabix.asVCF())
+                vcfLines = vcfFile.fetch(chromosome, start, end, parser=pysam.asVCF())
             except Exception, e:
                 logger.warning("Could not retrieve variants from source file in region %s:%s-%s. Error was %s" %(chromosome,start,end,e))
                 continue
@@ -176,7 +180,7 @@ def isValidVcfLine(line):
         if int(position) < 0:
             return False
     except ValueError:
-        logger.warning("Non inetgral position at chromosome " + chromosome)
+        logger.warning("Non integral position at chromosome " + chromosome)
         return False
 
     validBases = set(['A', 'C', 'G', 'T', 'N'])
