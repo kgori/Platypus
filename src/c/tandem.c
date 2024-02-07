@@ -57,7 +57,7 @@ unsigned char* twobit(char* sequence, int length, int offset)
 
 //=================================================================================================
 
-int approximate_indel_rate_inline(int size, int displacement)
+extern inline int approximate_indel_rate_inline(int size, int displacement)
 {
     // Helper -- returns guess of indel rate, in -10*phred units
     switch (displacement) {
@@ -77,7 +77,7 @@ int approximate_indel_rate(int size, int displacement)
 
 //=================================================================================================
 
-int min(int i, int j)
+extern inline int min(int i, int j)
 {
     // Helper -- minimum
     if (i<j) return i;
@@ -86,7 +86,7 @@ int min(int i, int j)
 
 //=================================================================================================
 
-void foundmatch(char* sizes, char* displacements, int pos, int size, int displacement, int length)
+extern inline void foundmatch(char* sizes, char* displacements, int pos, int size, int displacement, int length)
 {
     // Helper -- decides whether to accept (and store) a match
     char markfull = (length < 0);
@@ -264,7 +264,7 @@ void annotate(char* sequence, char* sizes, char* displacements, int length)
 
 //=================================================================================================
 
-int main()
+int main(void)
 {
 
     char* seq1 = "TATTTGCATGCGCTTTCGAGCTGTTGAAGAGACGTGTATTGGAATAAGTAATCACATAAGTGTTAGTAACTTATTTAAATACGTATAGAGTCGCCTATTTGCCTAGCCTTTTGGTTCTCAGATTTTTTAATTATTACATTGCTATAAGGGTGTAACTGTGTGATAGCCAAAATTTTAAGCTGCAAATGGTTTGTAAATATGATATATTACAAGCTTCATGAAAATCGGTTTATGACTGATCCGCGATTACGTTGAAAGGCGACTGGCAGAGATACTTTTGTTCAGATGTTTTTTCAGGTAGCGATTCCAATGAATAGGTAAAATACCTTGCAAGTTTTGTTGTTGTCGTTGGAGGAAATGTGGATGTGGTTGTTATTGTTGA";
